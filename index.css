@@ -1,0 +1,124 @@
+#container {
+    text-align: center;
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    transform: rotate(-90deg);
+}
+
+.block{
+    display: block;
+    text-align: center !important;
+}
+
+.lectures{
+    transform: translateY(-20%);
+    animation: fadeIn 1.5s 1;
+
+}
+
+.visual--img {
+    height: 15em;
+}
+
+.classroom-text-container--medium {
+    font-family: "IBMPlexSerif";
+    font-size: 4em;
+}
+
+.classroom-text-container--title{
+    font-family: "IBMPlexSerif-Light";
+    font-size: 2em;
+}
+
+.classroom-text-container {
+     font-family: "IBMPlexSerif-Light";
+     font-size: 2em;
+ }
+
+.classroom-text-container--light {
+    font-family: "IBMPlexSerif-Light";
+    font-size: 1em;
+}
+
+.logo-1 {
+    height: 70em;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    animation: zoomOut 1s 1;
+
+}
+
+.logo-2 {
+    height: 70em;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    animation: warp 3s 1;
+
+}
+
+.logo-3 {
+    height: 30em;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    animation: rotate 1.5s 1;
+}
+
+
+@keyframes zoomOut {
+    0% {
+        transform: scale(10, 10);
+    }
+    100% {
+        transform: scale(1, 1);
+    }
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity:0;
+    }
+    100% {
+        opacity:1;
+    }
+}
+
+@keyframes rotate {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+
+
+
+}
+
+@keyframes warp {
+
+    from {
+        clip-path:polygon(
+                100% 0,100% 0,100% 0,100% 0,/*1,2,3,4*/
+                0 100%,0 100%,0 100%,0 100%);/*5,6,7,8*/
+    }
+    40%, to {
+        clip-path:polygon(
+                0 50%,0 0,100% 0,100% 50%,/*1,2,3,4*/
+                0 50%,0 100%,100% 100%,100% 50%);/*5,6,7,8*/
+    }
+}
+

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="index.css">
+    <title>TV</title>
+</head>
+<body style="overflow:  hidden;">
+<div id="container">
+
+    <div id="lectures" class="lectures">
+        <div class="block">
+            <img src="vizual1.png" class="visual--img">
+        </div>
+
+        <div class="lectures-container">
+            <h1 id="schedule" class="classroom-text-container--medium">predavanja danas:</h1>
+
+            <h1 id="classroom1" class="classroom-text-container--title">Računalna</h1>
+            <div id="class1" class="classroom-text-container">
+            </div>
+
+            <h1 id="classroom2" class="classroom-text-container--title">Praktikum</h1>
+            <div class="classroom-text-container">
+                <p class="classroom-text-container--light"> Osnove algoritama strojnog vida | 9:00 - 11:00</p>
+                <p class="classroom-text-container--light"> Upravljanje i regulacija | 12:00 - 15:00</p>
+                <p class="classroom-text-container--light"> Autonomni sustavi | 12:00 - 15:00</p>
+
+            </div>
+        </div>
+    </div>
+
+    <div id=logo_animation_1 style="display:none;height: 100%;position: relative;">
+        <img id="vizual_1" src="vizual6.png" class="logo-1">
+    </div>
+
+    <div id=logo_animation_2 style="display:none;">
+        <img id="vizual_2" src="vizual7.png" class="logo-2">
+    </div>
+
+    <div id=logo_animation_3 style="display:none;">
+        <img id="vizual_3" src="vizual8.png" class="logo-3">
+    </div>
+
+</div>
+</body>
+
+<script>
+
+    let token, i;
+
+    function log(status, text){
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "http://127.0.0.1:5000/", false);
+
+                xhr.setRequestHeader('Content-Type', 'text/plain');
+
+                xhr.send(JSON.stringify({
+                    status: status,
+                    msg: text
+                }));
+
+
+        console.log(xhr.responseText)
+        console.log("ok")
+    }
+
+    function getToken() {
+        let url = "http://127.0.0.1:5000/";
+        let xhr = new XMLHttpRequest();
+        xhr.open("GET", url, false);
+        xhr.send(null);
+        token  =  JSON.parse(xhr.responseText).token;
+        log("OK",   "token: " + token);
+        console.log(token)
+    }
+
+    function displayLectures(token){
+        log("OK",     "display lectures");
+        let i;
+        let URL = "https://graph.microsoft.com/v1.0/sites/edf88b6f-e898-4bcc-819f-d1c8cdad28d7/lists/b20f285c-260f-4929-a0d8-b002c19a6742/items";
+        let xmlHttp = new XMLHttpRequest();
+        xmlHttp.open( "GET", URL, false ); // false for synchronous request
+        let tokenStr = 'Bearer ';
+        tokenStr = tokenStr.concat(token);
+        xmlHttp.setRequestHeader('Authorization', tokenStr);
+        xmlHttp.send(null);
+        log("OK", "token: " + tokenStr);
+        if (xmlHttp.status != 200){
+            log("ERROR", xmlHttp.status);
+            log("ERROR", xmlHttp.responseText);
+            return false
+        }
+
+        let responseItemsJSON = JSON.parse(xmlHttp.responseText);
+        let lectures = [];
+        for(i = 0; i<responseItemsJSON.value.length; i++) {
+
+            let lectureId = responseItemsJSON.value[i].id;
+            let request = "https://graph.microsoft.com/v1.0/sites/edf88b6f-e898-4bcc-819f-d1c8cdad28d7/lists/b20f285c-260f-4929-a0d8-b002c19a6742/items/";
+            request = request.concat(lectureId);
+
+            xmlHttp.open( "GET", request, false );
+            xmlHttp.setRequestHeader('Authorization', tokenStr);
+            xmlHttp.send( null );
+            if (xmlHttp.status != 200){
+                log("ERROR", xmlHttp.status);
+                log("ERROR", xmlHttp.responseText);
+                return false
+            }
+            let responseLectureJSON = JSON.parse(xmlHttp.responseText);
+
+            let className = responseLectureJSON.fields.Title;
+            let classStartDateStr = responseLectureJSON.fields.EventDate;
+            let classEndDateStr = responseLectureJSON.fields.EndDate;
+            let classStartDate = new Date(classStartDateStr);
+            let classEndDate = new Date(classEndDateStr);
+
+            let classStartHours = classStartDate.getHours();
+            let classStartMinutes = classStartDate.getMinutes();
+            if (classStartHours.toString().length < 2) {
+                classStartHours = "0" + classStartHours.toString()
+            }
+            if (classStartMinutes.toString().length < 2) {
+                classStartMinutes = "0" + classStartMinutes.toString()
+            }
+            let classStartTime = classStartHours + ":" + classStartMinutes;
+
+            let classEndHours = classEndDate.getHours();
+            let classEndMinutes = classEndDate.getMinutes();
+            if (classEndHours.toString().length < 2) {
+                classEndHours = "0" + classEndHours.toString()
+            }
+            if (classEndMinutes.toString().length < 2) {
+                classEndMinutes = "0" + classEndMinutes.toString()
+            }
+            let classEndTime = classEndHours + ":" + classEndMinutes;
+            let todayDate = new Date();
+
+            let startDateZero = new Date(classStartDateStr);
+            let endDateZero = new Date(classEndDateStr);
+            let todayDateZero = new Date();
+            startDateZero.setHours(0,0,0,0);
+            endDateZero.setHours(0,0,0,0);
+            todayDateZero.setHours(0,0,0,0);
+
+            var lecturesDiv = document.getElementById("class1");
+
+            let recurrence = responseLectureJSON.fields.fRecurrence;
+            //if event is recurring lecture, check if today's day of the week is same as the lecture and if lectures has started but not ended
+            if (recurrence){
+                if (startDateZero.getDay() === todayDateZero.getDay() && startDateZero <= todayDateZero && endDateZero >= todayDateZero){
+                    let lecture = new Object();
+                    lecture.name = className;
+                    lecture.start = classStartDate.getHours();
+                    lecture.time = classStartTime + " - " + classEndTime;
+                    lectures.push(lecture);
+                }
+            //if event is one time lecture, check if it starts at today's date
+            } else {
+                if (classStartDate.getDate() === todayDate.getDate() && classStartDate.getMonth() === todayDate.getMonth() && classStartDate.getFullYear() === todayDate.getFullYear()){
+
+                    let lecture = new Object();
+                    lecture.name = className;
+                    lecture.start =classStartDate.getHours();
+                    lecture.time = classStartTime + " - " + classEndTime;
+                    lectures.push(lecture);
+                }
+            }
+
+        }
+
+        function compare( a, b ) {
+            if ( a.start > b.start ){
+                return -1;
+            }
+            if ( a.start < b.start ){
+                return 1;
+            }
+            return 0;
+        }
+
+        //sort lectures by start hours
+        lectures.sort(compare);
+
+        while(lecturesDiv.firstChild){
+            lecturesDiv.removeChild(lecturesDiv.firstChild);
+        }
+        for(i = 0; i<lectures.length; i++) {
+            let newP = document.createElement("p");
+            let text = document.createTextNode(lectures[i].name+" | " +lectures[i].time);
+            newP.appendChild(text);
+            lecturesDiv.insertBefore(newP, lecturesDiv.firstChild);
+            log("OK", "lecture: " + lectures[i].name)
+        }
+
+        return true
+    }
+
+    function loop() {
+
+        if (! displayLectures(token)){
+            getToken();
+            displayLectures(token);
+        }
+        i++;
+
+        if (i%2 === 1){
+            document.getElementById("lectures").style.display = 'block';
+            document.getElementById("logo_animation_1").style.display = 'none';
+            document.getElementById("logo_animation_2").style.display = 'none';
+            document.getElementById("logo_animation_3").style.display = 'none';
+            setTimeout(loop, 7000);
+
+        } else {
+            if ((i/2)%3===2){
+                  document.getElementById("lectures").style.display = 'none';
+                  document.getElementById("logo_animation_1").style.display = 'block';
+                  document.getElementById("logo_animation_2").style.display = 'none';
+                  document.getElementById("logo_animation_3").style.display = 'none';
+                  setTimeout(loop, 3000);
+            } else if ((i/2)%3===1) {
+                  document.getElementById("lectures").style.display = 'none';
+                  document.getElementById("logo_animation_1").style.display = 'none';
+                  document.getElementById("logo_animation_2").style.display = 'block';
+                  document.getElementById("logo_animation_3").style.display = 'none';
+                  setTimeout(loop, 3000);
+            } else {
+                  document.getElementById("lectures").style.display = 'none';
+                  document.getElementById("logo_animation_1").style.display = 'none';
+                  document.getElementById("logo_animation_2").style.display = 'none';
+                  document.getElementById("logo_animation_3").style.display = 'block';
+                  setTimeout(loop, 3000);
+            }
+      }
+    }
+    i = 0;
+    getToken();
+    loop();
+
+</script>
+
+</html>
