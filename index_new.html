@@ -17,29 +17,27 @@
             <h1 id="schedule" class="classroom-text-container--medium">predavanja danas:</h1>
 
             <h1 id="classroom1" class="classroom-text-container--title">Računalna</h1>
-            <div id="class1" class="classroom-text-container">
+            <div class="racunalna_lectures">
+                <ul id="class1" class="classroom-text-container">
+                </ul>
             </div>
-
             <h1 id="classroom2" class="classroom-text-container--title">Praktikum</h1>
             <div class="classroom-text-container">
-                <p class="classroom-text-container--light"> Osnove algoritama strojnog vida | 9:00 - 11:00</p>
-                <p class="classroom-text-container--light"> Upravljanje i regulacija | 12:00 - 15:00</p>
-                <p class="classroom-text-container--light"> Autonomni sustavi | 12:00 - 15:00</p>
 
             </div>
         </div>
     </div>
 
     <div id=logo_animation_1 style="display:none;height: 100%;position: relative;">
-        <img id="vizual_1" src="vizual6.png" class="logo-1">
+        <img id="vizual_1" src="vizual2.png" class="logo-1">
     </div>
 
     <div id=logo_animation_2 style="display:none;">
-        <img id="vizual_2" src="vizual7.png" class="logo-2">
+        <img id="vizual_2" src="vizual3.png" class="logo-2">
     </div>
 
     <div id=logo_animation_3 style="display:none;">
-        <img id="vizual_3" src="vizual8.png" class="logo-3">
+        <img id="vizual_3" src="vizual4.png" class="logo-3">
     </div>
 
 </div>
@@ -48,6 +46,21 @@
 <script>
 
     let token, i;
+
+    function changeTransformation(size) {
+        var rule;
+        var ss = document.styleSheets;
+        for (var i = 0; i < ss.length; ++i) {
+            for (var x = 0; x < ss[i].cssRules.length; ++x) {
+                rule = ss[i].cssRules[x];
+                if (rule.name == "moveSlideshow" && rule.type == CSSRule.KEYFRAMES_RULE) {
+                    cssRule = rule;
+                    console.log("rule", rule)
+                    cssRule.appendRule("100% {transform: translateY(-" + size + "px);}");
+                }
+            }
+        }
+    }
 
     function log(status, text){
         var xhr = new XMLHttpRequest();
@@ -186,12 +199,30 @@
         while(lecturesDiv.firstChild){
             lecturesDiv.removeChild(lecturesDiv.firstChild);
         }
-        for(i = 0; i<lectures.length; i++) {
-            let newP = document.createElement("p");
-            let text = document.createTextNode(lectures[i].name+" | " +lectures[i].time);
+
+        let height = 0;
+        let duration = 0;
+        if (lectures.length == 0){
+            let newP = document.createElement("li");
+            let text = document.createTextNode("Danas nema predavanja");
             newP.appendChild(text);
             lecturesDiv.insertBefore(newP, lecturesDiv.firstChild);
-            log("OK", "lecture: " + lectures[i].name)
+        } else {
+            for(i = 0; i<lectures.length; i++) {
+                let newP = document.createElement("li");
+                let text = document.createTextNode(lectures[i].name+" | " +lectures[i].time);
+                newP.appendChild(text);
+                newP.style.marginTop = "10px";
+                newP.style.marginBottom = "10px";
+                lecturesDiv.insertBefore(newP, lecturesDiv.firstChild);
+                height += newP.getBoundingClientRect().width;
+                duration += 2;
+                log("OK", "lecture: " + lectures[i].name)
+            }
+            if (lectures.length>8){
+                document.getElementById("class1").style.animation = "moveSlideshow " + duration +"s linear infinite";
+                changeTransformation(height);
+            }
         }
 
         return true
@@ -233,10 +264,16 @@
                   setTimeout(loop, 3000);
             }
       }
+
+
     }
     i = 0;
     getToken();
     loop();
+
+
+
+
 
 </script>
 

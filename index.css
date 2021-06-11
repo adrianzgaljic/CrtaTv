@@ -31,10 +31,23 @@
     font-size: 2em;
 }
 
+.racunalna_lectures {
+    height: 400px;
+    overflow: hidden;
+}
+
 .classroom-text-container {
-     font-family: "IBMPlexSerif-Light";
-     font-size: 2em;
- }
+    font-family: "IBMPlexSerif-Light";
+    font-size: 2em;
+}
+
+.classroom-text-container {
+    animation: moveSlideshow 4s linear infinite;
+}
+
+@keyframes moveSlideshow {
+
+}
 
 .classroom-text-container--light {
     font-family: "IBMPlexSerif-Light";
@@ -63,6 +76,16 @@
     margin: auto;
     animation: warp 3s 1;
 
+}
+
+
+@-webkit-keyframes autoScrolling {
+    from {
+        margin-top: 0;
+    }
+    to {
+        margin-top: -20em;
+    }
 }
 
 .logo-3 {
