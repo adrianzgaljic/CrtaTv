@@ -31,7 +31,7 @@
     font-size: 2em;
 }
 
-.racunalna_lectures {
+.all_lectures {
     height: 400px;
     overflow: hidden;
 }
@@ -45,9 +45,6 @@
     animation: moveSlideshow 4s linear infinite;
 }
 
-@keyframes moveSlideshow {
-
-}
 
 .classroom-text-container--light {
     font-family: "IBMPlexSerif-Light";

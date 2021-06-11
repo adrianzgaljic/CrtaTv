@@ -14,16 +14,10 @@
         </div>
 
         <div class="lectures-container">
-            <h1 id="schedule" class="classroom-text-container--medium">predavanja danas:</h1>
-
-            <h1 id="classroom1" class="classroom-text-container--title">Računalna</h1>
-            <div class="racunalna_lectures">
+            <h1 id="schedule" class="classroom-text-container--medium">Predavanja danas:</h1>
+            <div class="all_lectures">
                 <ul id="class1" class="classroom-text-container">
                 </ul>
-            </div>
-            <h1 id="classroom2" class="classroom-text-container--title">Praktikum</h1>
-            <div class="classroom-text-container">
-
             </div>
         </div>
     </div>
@@ -50,16 +44,22 @@
     function changeTransformation(size) {
         var rule;
         var ss = document.styleSheets;
+        ss[0].insertRule("@keyframes moveSlideshow { 100% {transform: translateY(-" + size + "px);}}", 0)
+        /*
         for (var i = 0; i < ss.length; ++i) {
             for (var x = 0; x < ss[i].cssRules.length; ++x) {
                 rule = ss[i].cssRules[x];
                 if (rule.name == "moveSlideshow" && rule.type == CSSRule.KEYFRAMES_RULE) {
                     cssRule = rule;
-                    console.log("rule", rule)
+                    console.log("rule", rule);
+                    ss[i].deleteRule(x);
+                    cssRule.
                     cssRule.appendRule("100% {transform: translateY(-" + size + "px);}");
                 }
             }
         }
+
+         */
     }
 
     function log(status, text){
@@ -122,7 +122,7 @@
                 return false
             }
             let responseLectureJSON = JSON.parse(xmlHttp.responseText);
-
+            let classRoom = responseLectureJSON.fields.Category;
             let className = responseLectureJSON.fields.Title;
             let classStartDateStr = responseLectureJSON.fields.EventDate;
             let classEndDateStr = responseLectureJSON.fields.EndDate;
@@ -167,6 +167,7 @@
                     lecture.name = className;
                     lecture.start = classStartDate.getHours();
                     lecture.time = classStartTime + " - " + classEndTime;
+                    lecture.classRoom = classRoom;
                     lectures.push(lecture);
                 }
             //if event is one time lecture, check if it starts at today's date
@@ -177,6 +178,7 @@
                     lecture.name = className;
                     lecture.start =classStartDate.getHours();
                     lecture.time = classStartTime + " - " + classEndTime;
+                    lecture.classRoom = classRoom;
                     lectures.push(lecture);
                 }
             }
@@ -209,18 +211,22 @@
             lecturesDiv.insertBefore(newP, lecturesDiv.firstChild);
         } else {
             for(i = 0; i<lectures.length; i++) {
-                let newP = document.createElement("li");
-                let text = document.createTextNode(lectures[i].name+" | " +lectures[i].time);
-                newP.appendChild(text);
-                newP.style.marginTop = "10px";
-                newP.style.marginBottom = "10px";
-                lecturesDiv.insertBefore(newP, lecturesDiv.firstChild);
-                height += newP.getBoundingClientRect().width;
+                let lectureItem = document.createElement("li");
+                let strongElement = document.createElement('strong');
+                let classRoomElement = document.createTextNode(lectures[i].classRoom);
+                strongElement.appendChild(classRoomElement);
+                let lectureElement = document.createTextNode(": " + lectures[i].name+" | " +lectures[i].time);
+                lectureItem.appendChild(strongElement);
+                lectureItem.appendChild(lectureElement);
+                lectureItem.style.marginTop = "10px";
+                lectureItem.style.marginBottom = "10px";
+                lecturesDiv.insertBefore(lectureItem, lecturesDiv.firstChild);
+                height += lectureItem.getBoundingClientRect().width;
                 duration += 2;
                 log("OK", "lecture: " + lectures[i].name)
             }
             if (lectures.length>8){
-                document.getElementById("class1").style.animation = "moveSlideshow " + duration +"s linear infinite";
+                lecturesDiv.style.animation = "moveSlideshow " + duration +"s linear infinite";
                 changeTransformation(height);
             }
         }
@@ -241,7 +247,7 @@
             document.getElementById("logo_animation_1").style.display = 'none';
             document.getElementById("logo_animation_2").style.display = 'none';
             document.getElementById("logo_animation_3").style.display = 'none';
-            setTimeout(loop, 7000);
+            setTimeout(loop, 200000);
 
         } else {
             if ((i/2)%3===2){
@@ -249,19 +255,19 @@
                   document.getElementById("logo_animation_1").style.display = 'block';
                   document.getElementById("logo_animation_2").style.display = 'none';
                   document.getElementById("logo_animation_3").style.display = 'none';
-                  setTimeout(loop, 3000);
+                  setTimeout(loop, 1);
             } else if ((i/2)%3===1) {
                   document.getElementById("lectures").style.display = 'none';
                   document.getElementById("logo_animation_1").style.display = 'none';
                   document.getElementById("logo_animation_2").style.display = 'block';
                   document.getElementById("logo_animation_3").style.display = 'none';
-                  setTimeout(loop, 3000);
+                  setTimeout(loop, 1);
             } else {
                   document.getElementById("lectures").style.display = 'none';
                   document.getElementById("logo_animation_1").style.display = 'none';
                   document.getElementById("logo_animation_2").style.display = 'none';
                   document.getElementById("logo_animation_3").style.display = 'block';
-                  setTimeout(loop, 3000);
+                  setTimeout(loop, 1);
             }
       }
 
