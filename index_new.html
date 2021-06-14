@@ -47,6 +47,26 @@
                     <div> 20:30 </div>
                     <div> <span> 21:00 </span> </div>
                 </div>
+                <svg version="1.1" width="1000" height="800">
+                    <line x1="10" y1="10" x2="700" y2="10" stroke="#dddddd" stroke-width="2"></line>
+                    <line x1="10" y1="66" x2="700" y2="66" stroke="#dddddd" stroke-width="2"></line>
+                    <line x1="10" y1="122" x2="700" y2="122" stroke="#dddddd" stroke-width="2"></line>
+                    <line x1="10" y1="178" x2="700" y2="178" stroke="#dddddd" stroke-width="2"></line>
+                    <line x1="10" y1="234" x2="700" y2="234" stroke="#dddddd" stroke-width="2"></line>
+                    <line x1="10" y1="290" x2="700" y2="290" stroke="#dddddd" stroke-width="2"></line>
+                    <line x1="10" y1="346" x2="700" y2="346" stroke="#dddddd" stroke-width="2"></line>
+                    <line x1="10" y1="402" x2="700" y2="402" stroke="#dddddd" stroke-width="2"></line>
+                    <line x1="10" y1="458" x2="700" y2="458" stroke="#dddddd" stroke-width="2"></line>
+                    <line x1="10" y1="514" x2="700" y2="514" stroke="#dddddd" stroke-width="2"></line>
+                    <line x1="10" y1="570" x2="700" y2="570" stroke="#dddddd" stroke-width="2"></line>
+                    <line x1="10" y1="626" x2="700" y2="626" stroke="#dddddd" stroke-width="2"></line>
+                    <line x1="10" y1="682" x2="700" y2="682" stroke="#dddddd" stroke-width="2"></line>
+                    <line x1="10" y1="738" x2="700" y2="738" stroke="#dddddd" stroke-width="2"></line>
+                    <line x1="10" y1="794" x2="700" y2="794" stroke="#dddddd" stroke-width="2"></line>
+                    <line x1="10" y1="850" x2="700" y2="850" stroke="#dddddd" stroke-width="2"></line>
+                    <line x1="10" y1="906" x2="700" y2="906" stroke="#dddddd" stroke-width="2"></line>
+                    <line x1="10" y1="962" x2="700" y2="962" stroke="#dddddd" stroke-width="2"></line>
+                </svg>
                 <div class="days" id="events">
                 </div>
             </div>
@@ -74,27 +94,7 @@
 <script>
 
     let token, i;
-
-    function changeTransformation(size) {
-        var rule;
-        var ss = document.styleSheets;
-        ss[0].insertRule("@keyframes moveSlideshow { 100% {transform: translateY(-" + size + "px);}}", 0)
-        /*
-        for (var i = 0; i < ss.length; ++i) {
-            for (var x = 0; x < ss[i].cssRules.length; ++x) {
-                rule = ss[i].cssRules[x];
-                if (rule.name == "moveSlideshow" && rule.type == CSSRule.KEYFRAMES_RULE) {
-                    cssRule = rule;
-                    console.log("rule", rule);
-                    ss[i].deleteRule(x);
-                    cssRule.
-                    cssRule.appendRule("100% {transform: translateY(-" + size + "px);}");
-                }
-            }
-        }
-
-         */
-    }
+    let lectures = [];
 
     function log(status, text){
         var xhr = new XMLHttpRequest();
@@ -122,10 +122,10 @@
         console.log(token)
     }
 
-    function displayLectures(token){
+    function getLectures(token, classRoomId, classRoomName){
         log("OK",     "display lectures");
         let i;
-        let URL = "https://graph.microsoft.com/v1.0/sites/edf88b6f-e898-4bcc-819f-d1c8cdad28d7/lists/b20f285c-260f-4929-a0d8-b002c19a6742/items";
+        let URL = "https://graph.microsoft.com/v1.0/sites/edf88b6f-e898-4bcc-819f-d1c8cdad28d7/lists/" + classRoomId + "/items";
         let xmlHttp = new XMLHttpRequest();
         xmlHttp.open( "GET", URL, false ); // false for synchronous request
         let tokenStr = 'Bearer ';
@@ -140,11 +140,11 @@
         }
 
         let responseItemsJSON = JSON.parse(xmlHttp.responseText);
-        let lectures = [];
         for(i = 0; i<responseItemsJSON.value.length; i++) {
 
             let lectureId = responseItemsJSON.value[i].id;
-            let request = "https://graph.microsoft.com/v1.0/sites/edf88b6f-e898-4bcc-819f-d1c8cdad28d7/lists/b20f285c-260f-4929-a0d8-b002c19a6742/items/";
+            let request = "https://graph.microsoft.com/v1.0/sites/edf88b6f-e898-4bcc-819f-d1c8cdad28d7/lists/" + classRoomId + "/items/";
+
             request = request.concat(lectureId);
 
             xmlHttp.open( "GET", request, false );
@@ -191,8 +191,6 @@
             endDateZero.setHours(0,0,0,0);
             todayDateZero.setHours(0,0,0,0);
 
-            var lecturesDiv = document.getElementById("class1");
-
             let recurrence = responseLectureJSON.fields.fRecurrence;
             //if event is recurring lecture, check if today's day of the week is same as the lecture and if lectures has started but not ended
             if (recurrence){
@@ -202,8 +200,9 @@
                     lecture.start = classStartDate.getHours()*60 + classStartDate.getMinutes();
                     lecture.end = classEndDate.getHours()*60 + classEndDate.getMinutes();
                     lecture.time = classStartTime + " - " + classEndTime;
-                    lecture.classRoom = classRoom;
+                    lecture.classRoom = classRoomName;
                     lectures.push(lecture);
+
                 }
             //if event is one time lecture, check if it starts at today's date
             } else {
@@ -211,113 +210,42 @@
 
                     let lecture = new Object();
                     lecture.name = className;
-                    lecture.start = classStartDate.getHours()*60;
+                    lecture.start = classStartDate.getHours()*60 + classStartDate.getMinutes();
                     lecture.end = classEndDate.getHours()*60 + classEndDate.getMinutes();
                     lecture.time = classStartTime + " - " + classEndTime;
-                    lecture.classRoom = classRoom;
+                    lecture.classRoom = classRoomName;
                     lectures.push(lecture);
+
                 }
             }
 
         }
 
-        function compare( a, b ) {
-            if ( a.start > b.start ){
-                return -1;
-            }
-            if ( a.start < b.start ){
-                return 1;
-            }
-            return 0;
-        }
-
-        //sort lectures by start hours
-        lectures.sort(compare);
-        /*
-        while(lecturesDiv.firstChild){
-            lecturesDiv.removeChild(lecturesDiv.firstChild);
-        }
-
-        let height = 0;
-        let duration = 0;
-        if (lectures.length == 0){
-            let newP = document.createElement("li");
-            let text = document.createTextNode("Danas nema predavanja");
-            newP.appendChild(text);
-            lecturesDiv.insertBefore(newP, lecturesDiv.firstChild);
-        } else {
-            for(i = 0; i<lectures.length; i++) {
-                let lectureItem = document.createElement("li");
-                let strongElement = document.createElement('strong');
-                let classRoomElement = document.createTextNode(lectures[i].classRoom);
-                strongElement.appendChild(classRoomElement);
-                let lectureElement = document.createTextNode(": " + lectures[i].name+" | " +lectures[i].time);
-                lectureItem.appendChild(strongElement);
-                lectureItem.appendChild(lectureElement);
-                lectureItem.style.marginTop = "10px";
-                lectureItem.style.marginBottom = "10px";
-                lecturesDiv.insertBefore(lectureItem, lecturesDiv.firstChild);
-                height += lectureItem.getBoundingClientRect().width;
-                duration += 2;
-                log("OK", "lecture: " + lectures[i].name)
-            }
-            if (lectures.length>8){
-                lecturesDiv.style.animation = "moveSlideshow " + duration +"s linear infinite";
-                changeTransformation(height);
-            }
-        }
-
-
-         */
-        let events = []
-        start = 0
-        end = 0
-        for (var cnt = 0; cnt < 6; cnt++){
-            start = end
-            s = Math.floor(Math.random() * 4)+1;
-            s = 30*s;
-            start += s
-            d = Math.floor(Math.random() * 3) + 1;
-            d = 30*d;
-            end = start + d
-
-            console.log("s: ", start, "e: ", end)
-            event = {start: start, end: end, name: "Predavanje "+cnt, classRoom: "Računalna"}
-            events.push(event);
-        }
-        start = 0
-        end = 0
-        for (var cnt = 0; cnt < 6; cnt++){
-            start = end
-            s = Math.floor(Math.random() * 4)+1;
-            s = 30*s;
-            start += s
-            d = Math.floor(Math.random() * 3) + 1;
-            d = 30*d;
-            end = start + d
-
-            console.log("s: ", start, "e: ", end)
-            event = {start: start, end: end, name: "Predavanje "+cnt, classRoom: "Praktikum"}
-            events.push(event);
-        }
-        /*
-        let events = [ {start: 30, end: 180, name: "FIzika"},
-            {start: 60, end: 120, name: "Matematika"},
-            {start: 60, end: 150, name: "Matematika 2"},
-            {start: 30, end: 90, name: "Matematika 3"},
-            {start: 210, end: 270, name: "FIzika x"}];
-
-         */
-        layOutDay(events);
         return true
     }
 
-    function loop() {
-
-        if (! displayLectures(token)){
-            getToken();
-            displayLectures(token);
+    function compare( a, b ) {
+        if ( a.start > b.start ){
+            return -1;
         }
+        if ( a.start < b.start ){
+            return 1;
+        }
+        return 0;
+    }
+
+    function loop() {
+        let classRoomIdRacunalna = "b20f285c-260f-4929-a0d8-b002c19a6742";
+        let classRoomIdPraktikum = "2dbb5a38-8f4d-44c5-8824-8334a1e11bf4";
+
+        if (! (getLectures(token, classRoomIdRacunalna, "Računalna") && (getLectures(token, classRoomIdPraktikum, "Praktikum")))){
+            getToken();
+            getLectures(token,  classRoomIdRacunalna, "Računalna");
+            getLectures(token,  classRoomIdPraktikum, "Praktikum");
+
+        }
+        lectures.sort(compare);
+        layOutDay(lectures);
         i++;
 
         if (i%2 === 1){
@@ -325,7 +253,7 @@
             document.getElementById("logo_animation_1").style.display = 'none';
             document.getElementById("logo_animation_2").style.display = 'none';
             document.getElementById("logo_animation_3").style.display = 'none';
-            setTimeout(loop, 200000);
+            setTimeout(loop, 5000);
 
         } else {
             if ((i/2)%3===2){
@@ -333,19 +261,19 @@
                   document.getElementById("logo_animation_1").style.display = 'block';
                   document.getElementById("logo_animation_2").style.display = 'none';
                   document.getElementById("logo_animation_3").style.display = 'none';
-                  setTimeout(loop, 1);
+                  setTimeout(loop, 5000);
             } else if ((i/2)%3===1) {
                   document.getElementById("lectures").style.display = 'none';
                   document.getElementById("logo_animation_1").style.display = 'none';
                   document.getElementById("logo_animation_2").style.display = 'block';
                   document.getElementById("logo_animation_3").style.display = 'none';
-                  setTimeout(loop, 1);
+                  setTimeout(loop, 5000);
             } else {
                   document.getElementById("lectures").style.display = 'none';
                   document.getElementById("logo_animation_1").style.display = 'none';
                   document.getElementById("logo_animation_2").style.display = 'none';
                   document.getElementById("logo_animation_3").style.display = 'block';
-                  setTimeout(loop, 1);
+                  setTimeout(loop, 5000);
             }
       }
 
