@@ -15,10 +15,42 @@
 
         <div class="lectures-container">
             <h1 id="schedule" class="classroom-text-container--medium">Predavanja danas:</h1>
-            <div class="all_lectures">
-                <ul id="class1" class="classroom-text-container">
-                </ul>
+            <div class ="container">
+                <div class="timings">
+                    <div> <span> 7:00 </span></div>
+                    <div> 7:30 </div>
+                    <div> <span> 8:00 </span></div>
+                    <div> 8:30 </div>
+                    <div> <span> 9:00 </span></div>
+                    <div> 9:30 </div>
+                    <div> <span> 10:00 </span></div>
+                    <div> 10:30 </div>
+                    <div> <span> 11:00 </span></div>
+                    <div> 11:30 </div>
+                    <div> <span> 12:00 </span></div>
+                    <div> 12:30 </div>
+                    <div> <span> 13:00 </span></div>
+                    <div> 13:30 </div>
+                    <div> <span> 14:00 </span></div>
+                    <div> 14:30 </div>
+                    <div> <span> 15:00 </span> </div>
+                    <div> 15:30 </div>
+                    <div> <span> 16:00 </span> </div>
+                    <div> 16:30 </div>
+                    <div> <span> 17:00 </span> </div>
+                    <div> 17:30 </div>
+                    <div> <span> 18:00 </span> </div>
+                    <div> 18:30 </div>
+                    <div> <span> 19:00 </span> </div>
+                    <div> 19:30 </div>
+                    <div> <span> 20:00 </span> </div>
+                    <div> 20:30 </div>
+                    <div> <span> 21:00 </span> </div>
+                </div>
+                <div class="days" id="events">
+                </div>
             </div>
+
         </div>
     </div>
 
@@ -36,6 +68,8 @@
 
 </div>
 </body>
+
+<script src="script.js"></script>
 
 <script>
 
@@ -165,7 +199,8 @@
                 if (startDateZero.getDay() === todayDateZero.getDay() && startDateZero <= todayDateZero && endDateZero >= todayDateZero){
                     let lecture = new Object();
                     lecture.name = className;
-                    lecture.start = classStartDate.getHours();
+                    lecture.start = classStartDate.getHours()*60 + classStartDate.getMinutes();
+                    lecture.end = classEndDate.getHours()*60 + classEndDate.getMinutes();
                     lecture.time = classStartTime + " - " + classEndTime;
                     lecture.classRoom = classRoom;
                     lectures.push(lecture);
@@ -176,7 +211,8 @@
 
                     let lecture = new Object();
                     lecture.name = className;
-                    lecture.start =classStartDate.getHours();
+                    lecture.start = classStartDate.getHours()*60;
+                    lecture.end = classEndDate.getHours()*60 + classEndDate.getMinutes();
                     lecture.time = classStartTime + " - " + classEndTime;
                     lecture.classRoom = classRoom;
                     lectures.push(lecture);
@@ -197,7 +233,7 @@
 
         //sort lectures by start hours
         lectures.sort(compare);
-
+        /*
         while(lecturesDiv.firstChild){
             lecturesDiv.removeChild(lecturesDiv.firstChild);
         }
@@ -231,6 +267,48 @@
             }
         }
 
+
+         */
+        let events = []
+        start = 0
+        end = 0
+        for (var cnt = 0; cnt < 6; cnt++){
+            start = end
+            s = Math.floor(Math.random() * 4)+1;
+            s = 30*s;
+            start += s
+            d = Math.floor(Math.random() * 3) + 1;
+            d = 30*d;
+            end = start + d
+
+            console.log("s: ", start, "e: ", end)
+            event = {start: start, end: end, name: "Predavanje "+cnt, classRoom: "Računalna"}
+            events.push(event);
+        }
+        start = 0
+        end = 0
+        for (var cnt = 0; cnt < 6; cnt++){
+            start = end
+            s = Math.floor(Math.random() * 4)+1;
+            s = 30*s;
+            start += s
+            d = Math.floor(Math.random() * 3) + 1;
+            d = 30*d;
+            end = start + d
+
+            console.log("s: ", start, "e: ", end)
+            event = {start: start, end: end, name: "Predavanje "+cnt, classRoom: "Praktikum"}
+            events.push(event);
+        }
+        /*
+        let events = [ {start: 30, end: 180, name: "FIzika"},
+            {start: 60, end: 120, name: "Matematika"},
+            {start: 60, end: 150, name: "Matematika 2"},
+            {start: 30, end: 90, name: "Matematika 3"},
+            {start: 210, end: 270, name: "FIzika x"}];
+
+         */
+        layOutDay(events);
         return true
     }
 
